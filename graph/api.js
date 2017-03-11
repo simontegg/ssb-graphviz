@@ -5,6 +5,7 @@ const Routes = require('http-routes')
 
 const buildLinks = require('./helpers/build-links')
 const buildNodes = require('./helpers/build-nodes')
+const buildNodeMap = require('./helpers/build-node-map')
 
 module.exports = GraphApi
 
@@ -32,6 +33,8 @@ function GraphApi (ssb, config) {
       ssb.friends.all,
       (friends, cb) => {
         cb(null, {
+          id: ssb.id,
+          nodeMap: buildNodeMap(friends),
           nodes: buildNodes(friends),
           links: buildLinks(friends)
         })

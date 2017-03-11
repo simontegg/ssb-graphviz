@@ -5,7 +5,16 @@ const pullContinuable = require('pull-cont')
 const html = require('inu/html')
 const pull = require('pull-stream')
 
-const { SET, SET_HOVER, FETCH, HOVER, set, setHover, fetch } = require('./actions')
+const { 
+  SET, 
+  SET_HOVER, 
+  FETCH, 
+  HOVER, 
+  FILTER_GRAPH,
+  set, 
+  setHover, 
+  fetch,
+  filterGraph } = require('./actions')
 const GraphView = require('./view')
 const { fetchOne: fetchProfile } = require('../profiles/actions')
 const ProfileView = require('../profiles/view')
@@ -20,16 +29,34 @@ function GraphApp (config) {
     name: 'graph',
     init: () => ({
       model: {
+        id: '',
+        nodeMap: {},
         nodes: [],
-        links: []
+        links: [],
+        center: '',
+        visibleNodes: [],
+        visibleLinks: []
       },
       effect: fetch()
     }),
     update: {
-      [SET]: (model, graph) => ({ model: graph }),
+      [SET]: (model, graph) => ({ 
+        model: assign({}, graph, { center: graph.id }),
+      }),
       [SET_HOVER]: (model, hover) => ({
         model: assign({}, model, { hover })
-      })
+      }),
+      [FILTER_GRAPH]: (model, center, graph) => {
+        const { nodeMap, links } = graph ? graph : model
+        return {
+          model: assign({}, model, { 
+            visibleNodes: nodeMap[center].data.friends,
+            visisbleLinks: links.filter(({fromId, toId}) => (
+              fromId === center || toId === center
+            ))
+          })
+        }
+      }
     },
     run: {
       [FETCH]: () => {
@@ -39,7 +66,7 @@ function GraphApp (config) {
             json: true
           }, (err, resp, { body } = {}) => {
             if (err) return cb(err)
-            cb(null, pull.values([set(body)]))
+            cb(null, pull.values([set(body), filterGraph(body.id, body)]))
           })
         })
       },

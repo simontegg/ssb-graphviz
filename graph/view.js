@@ -19,19 +19,22 @@ function GraphView (config) {
       return html`<div class='graph'></div>`
     },
     onupdate: function (el, graph, dispatch) {
-      if (!display) {
-        ngraph = fromJson(graph)
-        display = Display(el)
-        display.on('nodehover', NodeHoverHandler(dispatch))
-      } else {
-        // TODO a better way to update the graph
-        // updateGraph(graph)
-        // display.off('nodehover')
-        // display.on('nodehover', NodeHoverHandler(dispatch))
-      }
+      console.log(graph)
+    
     }
   })
 
+//      if (!display) {
+//        ngraph = fromJson(graph)
+//        display = Display(el)
+//        display.on('nodehover', NodeHoverHandler(dispatch))
+//      } else {
+//        // TODO a better way to update the graph
+//        // updateGraph(graph)
+//        // display.off('nodehover')
+//        // display.on('nodehover', NodeHoverHandler(dispatch))
+//      }
+//    }
   /*
   function updateGraph ({ nodes, links }) {
     ngraph.beginUpdate()
