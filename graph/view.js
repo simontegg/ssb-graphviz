@@ -1,25 +1,48 @@
 const { assign } = Object
-const Renderer = require('ngraph.pixel')
 const html = require('inu/html')
 const { run } = require('inux')
+const { map } = require('lodash')
 const Widget = require('cache-element/widget')
 
-const fromJson = require('ngraph.fromjson')
 
 const { hover } = require('./actions')
 
 module.exports = GraphView
 
 function GraphView (config) {
-  var ngraph
-  var display
+  var two
+  const width = 900
+  const height = 900
 
   return Widget({
     render: function (graph, dispatch) {
-      return html`<div class='graph'></div>`
+      return html`<div class='graph'>
+        <svg 
+          id='diagram'
+          width=${width}
+          height=${height}
+          xmlns="http://www.w3.org/2000/svg" >      
+          <defs xmlns="http://www.w3.org/2000/svg">
+            <filter id="dropshadow" width='150%' height="150%">
+              <feGaussianBlur in="SourceAlpha" stdDeviation="2"/> 
+              <feOffset dx="-1" dy="2" result="offsetblur"/> 
+              <feMerge> 
+                <feMergeNode />
+                <feMergeNode in="SourceGraphic"/> 
+              </feMerge>
+            </filter>
+          </defs>
+          <g id='links'>
+
+
+
+          </g>
+        </svg>
+      </div>`
     },
     onupdate: function (el, graph, dispatch) {
-      console.log(graph)
+      console.log('graph', graph)
+
     
     }
   })

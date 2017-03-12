@@ -4,6 +4,8 @@ const { Domain, run } = require('inux')
 const pullContinuable = require('pull-cont')
 const html = require('inu/html')
 const pull = require('pull-stream')
+const { map } = require('lodash')
+const { Layout } = require('webcola')
 
 const { 
   SET, 
@@ -11,10 +13,12 @@ const {
   FETCH, 
   HOVER, 
   FILTER_GRAPH,
+  LAYOUT,
   set, 
   setHover, 
   fetch,
-  filterGraph } = require('./actions')
+  filterGraph,
+  layout } = require('./actions')
 const GraphView = require('./view')
 const { fetchOne: fetchProfile } = require('../profiles/actions')
 const ProfileView = require('../profiles/view')
@@ -31,11 +35,12 @@ function GraphApp (config) {
       model: {
         id: '',
         nodeMap: {},
+        _nodes: [],
+        _links: [],
+        center: '',
         nodes: [],
         links: [],
-        center: '',
-        visibleNodes: [],
-        visibleLinks: []
+        layout: {}
       },
       effect: fetch()
     }),
@@ -47,15 +52,17 @@ function GraphApp (config) {
         model: assign({}, model, { hover })
       }),
       [FILTER_GRAPH]: (model, center, graph) => {
-        const { nodeMap, links } = graph ? graph : model
-        return {
-          model: assign({}, model, { 
-            visibleNodes: nodeMap[center].data.friends,
-            visisbleLinks: links.filter(({fromId, toId}) => (
-              fromId === center || toId === center
-            ))
-          })
-        }
+        const { nodeMap, _links } = graph ? graph : model
+        const nodes = map(nodeMap[center].data.friends, key => nodeMap[key])
+        const links = _links.filter(({fromId, toId}) => {
+          return fromId === center || toId === center
+        })
+
+        const layout = new Layout()
+        layout.nodes(nodes)
+        layout.links(links)
+
+        return { model: assign({}, model, { nodes, links, layout}) }
       }
     },
     run: {
@@ -75,7 +82,7 @@ function GraphApp (config) {
           setHover(id),
           run(fetchProfile(id))
         ])
-      }
+      },
     },
     routes: [
       ['/', (params, model, dispatch) => {

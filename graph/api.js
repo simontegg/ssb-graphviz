@@ -35,8 +35,8 @@ function GraphApi (ssb, config) {
         cb(null, {
           id: ssb.id,
           nodeMap: buildNodeMap(friends),
-          nodes: buildNodes(friends),
-          links: buildLinks(friends)
+          _nodes: buildNodes(friends),
+          _links: buildLinks(friends)
         })
       }
     ], cb)
